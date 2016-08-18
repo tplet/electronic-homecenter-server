@@ -1,6 +1,3 @@
 [submodule "vendors/common"]
 	path = vendors/common
 	url = http://gitlab.osteres.com/electronic/common.git
-[submodule "vendors/RF24"]
-	path = vendors/RF24
-	url = git@github.com:TMRh20/RF24.git

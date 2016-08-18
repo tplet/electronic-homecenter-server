@@ -1,7 +1,30 @@
 cmake_minimum_required(VERSION 3.3)
-project(homecenter_server)
+# Parameters
+if (EXISTS ${CMAKE_SOURCE_DIR}/cmake/parameters.txt)
+    include(${CMAKE_SOURCE_DIR}/cmake/parameters.txt)
+endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# Project name
+set(NAME homecenter_server)
+set(EXECUTABLE ${NAME})
 
-set(SOURCE_FILES main.cpp)
-add_executable(homecenter_server ${SOURCE_FILES})
+# Files
+file(GLOB_RECURSE FILES_CPP "src/*.cpp")
+file(GLOB_RECURSE FILES_H "src/*.h")
+set(SOURCE_FILES main.cpp ${FILES_CPP} ${FILES_H})
+
+# Project
+project(${NAME})
+add_executable(${EXECUTABLE} ${SOURCE_FILES})
+
+# Add src directory to "include path"
+target_include_directories(${EXECUTABLE} PUBLIC ./src)
+
+# Compiler
+set_property(TARGET ${EXECUTABLE} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${EXECUTABLE} PROPERTY CXX_STANDARD_REQUIRED ON)
+
+## Dependencies
+# Common
+add_subdirectory(./vendors/common/)
+target_link_libraries(${EXECUTABLE} common)
