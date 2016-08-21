@@ -1,9 +1,35 @@
 #include <iostream>
+#include <HomecenterApplication.h>
+#include <com/osteres/automation/proxy/RF24.h>
+
+#ifdef RF24_MOCK
+    #define RPI_BPLUS_GPIO_J8_22 25
+    #define RPI_BPLUS_GPIO_J8_24 8
+#endif
+
 
 using namespace std;
 
+// Radio transmitter
+RF24 radio(RPI_BPLUS_GPIO_J8_22, RPI_BPLUS_GPIO_J8_24);
+// Application
+HomecenterApplication application(&radio);
+
 int main() {
-    cout << "Hello, World!" << endl;
+
+    cout << "Start server..." << endl;
+
+    // Setup
+    application.setup();
+
+    cout << "Server started." << endl;
+
+    // Process
+    while (true) {
+        cout << "." << flush;
+        application.process();
+    }
+
     return 0;
 }
 
