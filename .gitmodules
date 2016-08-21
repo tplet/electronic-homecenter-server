@@ -1,0 +1,3 @@
+[submodule "vendors/common"]
+	path = vendors/common
+	url = http://gitlab.osteres.com/electronic/common.git
