@@ -1,12 +1,16 @@
 
 # Enable RF24 mock
-set(RF24_MOCK True)
+set(RF24_MOCK False)
 
 # Library path
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local")
+# Mac only
+#set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local")
 
 # MySQL
-set(MYSQL_LIBRARY_PATH "/usr/local/mysql/")
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${MYSQL_LIBRARY_PATH}/lib)
-
+# Mac
+#set(MYSQL_LIBRARY_PATH "/usr/local/mysql/lib/")
+#set(MYSQL_INCLUDE_PATH "/usr/local/mysql/include/")
+# Linux
+set(MYSQL_LIBRARY_PATH "/usr/lib/arm-linux-gnueabihf/")
+set(MYSQL_INCLUDE_PATH "/usr/include/mysql")
 
