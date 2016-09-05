@@ -1,0 +1,12 @@
+
+# Enable RF24 mock
+set(RF24_MOCK True)
+
+# Library path
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local")
+
+# MySQL
+set(MYSQL_LIBRARY_PATH "/usr/local/mysql/")
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${MYSQL_LIBRARY_PATH}/lib)
+
+
