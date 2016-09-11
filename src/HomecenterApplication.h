@@ -109,6 +109,18 @@ protected:
      */
     void initialize(RF24 * radio, MYSQL * db, DatabaseParameters * parameters)
     {
+        // Db
+        this->db = db;
+        mysql_init(this->db);
+        mysql_options(this->db, MYSQL_READ_DEFAULT_GROUP, "option");
+        if(!mysql_real_connect(this->db, parameters->getHost(), parameters->getUser(), parameters->getPasswd(),
+                              parameters->getDb(), parameters->getPort(), parameters->getUnixSocket(),
+                              parameters->getClientFlag()))
+        {
+            printf("Connection error : %s\n", mysql_error(this->db));
+            this->db = NULL;
+        }
+
         // Create and configure transmitter (as master)
         this->transmitter = new Transmitter(radio, Identity::MASTER, true);
 
@@ -116,18 +128,8 @@ protected:
         this->receiverActionManager = new ReceiverActionManager(this->db);
         this->serviceReceiver = new ServiceReceiver(this->transmitter, this->receiverActionManager);
 
-        // Db
-        this->db = db;
-        mysql_init(db);
-        mysql_options(db, MYSQL_READ_DEFAULT_GROUP, "option");
-        if(mysql_real_connect(db, parameters->getHost(), parameters->getUser(), parameters->getPasswd(),
-                              parameters->getDb(), parameters->getPort(), parameters->getUnixSocket(),
-                              parameters->getClientFlag()))
-        {
-            this->ready = true;
-        } else {
-            this->db = NULL;
-        }
+        // Ready flag
+        this->ready = this->db != NULL;
     }
 
     /**

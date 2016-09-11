@@ -59,7 +59,10 @@ namespace action {
                      to_string(packet->getDataChar3()) + "')";
 
             // Insert packet into database
-            mysql_query(this->db, query.c_str());
+            if (mysql_query(this->db, query.c_str()))
+            {
+                printf("MySQL query error : %s\n", mysql_error(this->db));
+            }
 
             // Check insert
             if (mysql_affected_rows(this->db) == 0) {

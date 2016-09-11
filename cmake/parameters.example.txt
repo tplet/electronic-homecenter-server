@@ -10,7 +10,8 @@ set(RF24_MOCK False)
 # Mac
 #set(MYSQL_LIBRARY_PATH "/usr/local/mysql/lib/")
 #set(MYSQL_INCLUDE_PATH "/usr/local/mysql/include/")
+#set(MYSQL_LIBRARY_DEPENDENCIES "")
 # Linux
 set(MYSQL_LIBRARY_PATH "/usr/lib/arm-linux-gnueabihf/")
 set(MYSQL_INCLUDE_PATH "/usr/include/mysql")
-
+set(MYSQL_LIBRARY_DEPENDENCIES "pthread dl z")
