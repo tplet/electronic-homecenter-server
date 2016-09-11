@@ -14,4 +14,4 @@ set(RF24_MOCK False)
 # Linux
 set(MYSQL_LIBRARY_PATH "/usr/lib/arm-linux-gnueabihf/")
 set(MYSQL_INCLUDE_PATH "/usr/include/mysql")
-set(MYSQL_LIBRARY_DEPENDENCIES "pthread dl z")
+set(MYSQL_LIBRARY_DEPENDENCIES pthread dl z)
