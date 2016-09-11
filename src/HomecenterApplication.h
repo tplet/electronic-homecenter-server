@@ -11,6 +11,8 @@
 #include <com/osteres/automation/sensor/Identity.h>
 #include <service/Receiver.h>
 #include <action/ReceiverActionManager.h>
+#include <DatabaseParameters.h>
+#include <mysql.h>
 
 using com::osteres::automation::Application;
 using com::osteres::automation::transmission::Transmitter;
@@ -25,9 +27,9 @@ public:
     /**
      * Constructor
      */
-    HomecenterApplication(RF24 * radio)
+    HomecenterApplication(RF24 * radio, MYSQL * db, DatabaseParameters * parameters)
     {
-        this->initialize(radio);
+        this->initialize(radio, db, parameters);
     }
 
     /**
@@ -82,20 +84,58 @@ public:
         // TODO
     }
 
+    /**
+     * Flag to indicate if application is ready to process
+     */
+    bool isReady()
+    {
+        return this->ready;
+    }
+
+    /**
+     * Close connection to database
+     */
+    void closeDatabase()
+    {
+        if (this->db != NULL) {
+            mysql_close(this->db);
+        }
+    }
+
 protected:
 
     /**
      * Initialization (constructor)
      */
-    void initialize(RF24 * radio)
+    void initialize(RF24 * radio, MYSQL * db, DatabaseParameters * parameters)
     {
+        // Db
+        this->db = db;
+        mysql_init(this->db);
+        mysql_options(this->db, MYSQL_READ_DEFAULT_GROUP, "option");
+        if(!mysql_real_connect(this->db, parameters->getHost(), parameters->getUser(), parameters->getPasswd(),
+                              parameters->getDb(), parameters->getPort(), parameters->getUnixSocket(),
+                              parameters->getClientFlag()))
+        {
+            printf("Connection error : %s\n", mysql_error(this->db));
+            this->db = NULL;
+        }
+
         // Create and configure transmitter (as master)
         this->transmitter = new Transmitter(radio, Identity::MASTER, true);
 
         // Service receiver
-        this->receiverActionManager = new ReceiverActionManager();
+        this->receiverActionManager = new ReceiverActionManager(this->db);
         this->serviceReceiver = new ServiceReceiver(this->transmitter, this->receiverActionManager);
+
+        // Ready flag
+        this->ready = this->db != NULL;
     }
+
+    /**
+     * Flag to indicate if application is ready to process
+     */
+    bool ready = false;
 
     /**
      * Radio transmitter
@@ -111,6 +151,11 @@ protected:
      * Action manager for receiver
      */
     ReceiverActionManager * receiverActionManager = NULL;
+
+    /**
+     * Database connection instance
+     */
+    MYSQL * db = NULL;
 
 };
 

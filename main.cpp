@@ -1,6 +1,8 @@
 #include <iostream>
 #include <HomecenterApplication.h>
+#include <DatabaseParameters.h>
 #include <com/osteres/automation/proxy/RF24.h>
+#include <mysql.h>
 
 #ifdef RF24_MOCK
     #define RPI_BPLUS_GPIO_J8_22 25
@@ -12,10 +14,18 @@ using namespace std;
 
 // Radio transmitter
 RF24 radio(RPI_BPLUS_GPIO_J8_22, RPI_BPLUS_GPIO_J8_24);
+// MySQL
+MYSQL db;
+DatabaseParameters parameters("127.0.0.1", "root", "root", "domotique_homecenter", 8889);
 // Application
-HomecenterApplication application(&radio);
+HomecenterApplication application(&radio, &db, &parameters);
 
 int main() {
+
+    // Check if application is ready
+    if (!application.isReady()) {
+        cout << "Application initialize failed! Please check configuration (like database credentials access)" << endl;
+    }
 
     cout << "Start server..." << endl;
 
@@ -29,6 +39,9 @@ int main() {
         cout << "." << flush;
         application.process();
     }
+
+    // Close db connection
+    application.closeDatabase();
 
     return 0;
 }
