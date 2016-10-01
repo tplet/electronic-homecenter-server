@@ -9,16 +9,19 @@
 #include <com/osteres/automation/proxy/RF24.h>
 #include <com/osteres/automation/transmission/Transmitter.h>
 #include <com/osteres/automation/sensor/Identity.h>
+#include <com/osteres/automation/memory/Property.h>
 #include <service/Receiver.h>
+#include <service/DatabaseManager.h>
 #include <action/ReceiverActionManager.h>
 #include <DatabaseParameters.h>
-#include <mysql.h>
 
 using com::osteres::automation::Application;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::sensor::Identity;
 using ServiceReceiver = service::Receiver;
+using service::DatabaseManager;
 using action::ReceiverActionManager;
+using com::osteres::automation::memory::Property;
 
 class HomecenterApplication : public Application
 {
@@ -27,9 +30,9 @@ public:
     /**
      * Constructor
      */
-    HomecenterApplication(RF24 * radio, MYSQL * db, DatabaseParameters * parameters)
+    HomecenterApplication(RF24 * radio, DatabaseParameters * parameters)
     {
-        this->initialize(radio, db, parameters);
+        this->initialize(radio, parameters);
     }
 
     /**
@@ -42,15 +45,23 @@ public:
             delete this->transmitter;
             this->transmitter = NULL;
         }
+
         // Remove receiver action manager
         if (this->receiverActionManager != NULL) {
             delete this->receiverActionManager;
             this->receiverActionManager = NULL;
         }
+
         // Remove service receiver
         if (this->serviceReceiver != NULL) {
             delete this->serviceReceiver;
             this->serviceReceiver = NULL;
+        }
+
+        // Remove service database
+        if (this->serviceDatabaseManager != NULL) {
+            delete this->serviceDatabaseManager;
+            this->serviceDatabaseManager = NULL;
         }
     }
 
@@ -92,44 +103,31 @@ public:
         return this->ready;
     }
 
-    /**
-     * Close connection to database
-     */
-    void closeDatabase()
-    {
-        if (this->db != NULL) {
-            mysql_close(this->db);
-        }
-    }
-
 protected:
 
     /**
      * Initialization (constructor)
      */
-    void initialize(RF24 * radio, MYSQL * db, DatabaseParameters * parameters)
+    void initialize(RF24 * radio, DatabaseParameters * parameters)
     {
         // Db
-        this->db = db;
-        mysql_init(this->db);
-        mysql_options(this->db, MYSQL_READ_DEFAULT_GROUP, "option");
-        if(!mysql_real_connect(this->db, parameters->getHost(), parameters->getUser(), parameters->getPasswd(),
-                              parameters->getDb(), parameters->getPort(), parameters->getUnixSocket(),
-                              parameters->getClientFlag()))
-        {
-            printf("Connection error : %s\n", mysql_error(this->db));
-            this->db = NULL;
-        }
+        this->serviceDatabaseManager = new DatabaseManager(parameters);
+        this->serviceDatabaseManager->connect();
+
+        // Property type
+        this->propertyType = new Property<unsigned char>();
+        this->propertyType->set(Identity::MASTER);
 
         // Create and configure transmitter (as master)
-        this->transmitter = new Transmitter(radio, Identity::MASTER, true);
+        this->transmitter = new Transmitter(radio, true);
+        this->transmitter->setPropertySensorType(this->propertyType);
 
         // Service receiver
-        this->receiverActionManager = new ReceiverActionManager(this->db);
+        this->receiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager);
         this->serviceReceiver = new ServiceReceiver(this->transmitter, this->receiverActionManager);
 
         // Ready flag
-        this->ready = this->db != NULL;
+        this->ready = this->serviceDatabaseManager->isConnected();
     }
 
     /**
@@ -148,14 +146,19 @@ protected:
     ServiceReceiver * serviceReceiver = NULL;
 
     /**
+     * Service database manager
+     */
+    DatabaseManager * serviceDatabaseManager = NULL;
+
+    /**
      * Action manager for receiver
      */
     ReceiverActionManager * receiverActionManager = NULL;
 
     /**
-     * Database connection instance
+     * Property for application (sensor) type
      */
-    MYSQL * db = NULL;
+    Property<unsigned char> * propertyType = NULL;
 
 };
 

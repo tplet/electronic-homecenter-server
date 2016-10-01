@@ -7,13 +7,14 @@
 
 #include <com/osteres/automation/action/ActionManagerBase.h>
 #include <com/osteres/automation/action/implement/ConsoleDisplayPacket.h>
+#include <service/DatabaseManager.h>
 #include <string>
 #include <iostream>
-#include <mysql.h>
 
 using std::string;
 using com::osteres::automation::action::ActionManagerBase;
 using com::osteres::automation::action::implement::ConsoleDisplayPacket;
+using service::DatabaseManager;
 
 namespace action {
     class ReceiverActionManager : public ActionManagerBase {
@@ -22,9 +23,10 @@ namespace action {
         /**
          * Constructor
          */
-        ReceiverActionManager(MYSQL *db) {
+        ReceiverActionManager(DatabaseManager * databaseManager)
+        {
             this->actionDisplay = new ConsoleDisplayPacket();
-            this->db = db;
+            this->serviceDatabaseManager = databaseManager;
         }
 
         /**
@@ -46,28 +48,22 @@ namespace action {
             this->actionDisplay->execute(packet);
 
             string query = "INSERT INTO `packet` ";
-            query += "(`date`, `sensor`, `command`, `target`, `last`, `data_long1`, `data_long2`, `data_long3`, `data_long4`, `data_uchar1`, `data_uchar2`, `data_uchar3`, `data_uchar4`, `data_char1`, `data_char2`, `data_char3`) ";
+            query += "(`date`, `source_type`, `source_identifier`, `command`, `target`, `last`, `data_long1`, `data_long2`, `data_long3`, `data_long4`, `data_uchar1`, `data_uchar2`, `data_uchar3`, `data_char1`, `data_char2`, `data_char3`) ";
             query += "VALUES('" +
                      to_string(packet->getDate()) + "', '" +
-                     to_string(packet->getSensor()) + "', '" + to_string(packet->getCommand()) + "', '" +
+                     to_string(packet->getSourceType()) + "', '" + to_string(packet->getSourceIdentifier()) + "', '" +
+                     to_string(packet->getCommand()) + "', '" +
                      to_string(packet->getTarget()) + "', '" + (packet->isLast() ? "1" : "0") + "', '" +
                      to_string(packet->getDataLong1()) + "', '" + to_string(packet->getDataLong2()) + "', '" +
                      to_string(packet->getDataLong3()) + "', '" + to_string(packet->getDataLong4()) + "', '" +
                      to_string(packet->getDataUChar1()) + "', '" + to_string(packet->getDataUChar2()) + "', '" +
-                     to_string(packet->getDataUChar3()) + "', '" + to_string(packet->getDataUChar4()) + "', '" +
+                     to_string(packet->getDataUChar3()) + "', '" +
                      to_string(packet->getDataChar1()) + "', '" + to_string(packet->getDataChar2()) + "', '" +
                      to_string(packet->getDataChar3()) + "')";
 
-            // Insert packet into database
-            if (mysql_query(this->db, query.c_str()))
-            {
-                printf("MySQL query error : %s\n", mysql_error(this->db));
-            }
-
-            // Check insert
-            if (mysql_affected_rows(this->db) == 0) {
-                cout << "Error: Packet not correctly inserted into database!" << endl;
-            }
+            // Check connect
+            this->serviceDatabaseManager->checkConnect();
+            this->serviceDatabaseManager->insert(query);
         }
 
     protected:
@@ -79,9 +75,9 @@ namespace action {
         ConsoleDisplayPacket *actionDisplay = NULL;
 
         /**
-         * Db instance
+         * Service database manager
          */
-        MYSQL *db = NULL;
+        DatabaseManager * serviceDatabaseManager = NULL;
     };
 }
 
