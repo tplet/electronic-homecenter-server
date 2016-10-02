@@ -14,7 +14,7 @@ using namespace std;
 // Radio transmitter
 RF24 radio(RPI_BPLUS_GPIO_J8_22, RPI_BPLUS_GPIO_J8_24);
 // MySQL
-DatabaseParameters parameters("127.0.0.1", "root", "root", "domotique_homecenter", 8889);
+DatabaseParameters parameters("192.168.0.42", "root", "root", "domotique_homecenter", 3306);
 // Application
 HomecenterApplication application(&radio, &parameters);
 

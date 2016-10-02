@@ -7,9 +7,14 @@
 
 #include <mysql.h>
 #include <string>
+#include <vector>
+#include <iostream>
 #include <DatabaseParameters.h>
+#include <object/SingleResult.h>
 
 using std::string;
+using std::vector;
+using object::SingleResult;
 
 namespace service {
     class DatabaseManager {
@@ -104,30 +109,88 @@ namespace service {
 
         /**
          * Insert query
-         * Return number of rows affected
+         * Return primary value of inserted row
          */
         unsigned long long insert(string query)
         {
-            unsigned long long affected = 0;
+            unsigned long long id = 0;
 
-            if (this->isConnected()) {
-                // @see http://dev.mysql.com/doc/refman/5.7/en/mysql-query.html
-                if (mysql_query(this->db, query.c_str())) {
-                    printf("MySQL query error : %s\n", mysql_error(this->db));
-                }
-
-                affected = mysql_affected_rows(this->db);
+            if (this->isConnected() && this->query(query)) {
+                id = mysql_insert_id(this->db);
 
                 // Check insert
-                if (affected == 0) {
+                if (id == 0) {
                     printf("Error: No data correctly inserted into database!");
                 }
             }
 
-            return affected;
+            return id;
+        }
+
+        /**
+         * Select multiple
+         */
+        vector<MYSQL_ROW> select(string query)
+        {
+            vector<MYSQL_ROW> list;
+
+            if (this->isConnected() && this->query(query)) {
+
+                MYSQL_ROW row;
+                MYSQL_RES * results = mysql_store_result(this->db);
+                unsigned long long count = mysql_num_rows(results);
+
+                list.reserve(count);
+                while ((row = mysql_fetch_row(results))) {
+                    list.push_back(row);
+                }
+
+                mysql_free_result(results);
+
+                return list;
+            }
+
+            return list;
+        }
+
+        /**
+         * Select single
+         */
+        SingleResult selectOne(string query)
+        {
+            SingleResult result;
+            if (this->isConnected() && this->query(query)) {
+
+                MYSQL_RES * results = mysql_store_result(this->db);
+                unsigned long long count = mysql_num_rows(results);
+                result.setResult(count > 0);
+
+                if (result.hasResult()) {
+                    result.setRow(mysql_fetch_row(results));
+                }
+
+                mysql_free_result(results);
+            }
+
+            return result;
         }
 
     protected:
+        /**
+         * Query
+         *
+         * @return bool True if success, false otherwise
+         */
+        bool query(string query)
+        {
+            // @see http://dev.mysql.com/doc/refman/5.7/en/mysql-query.html
+            bool success = !mysql_query(this->db, query.c_str());
+            if (!success) {
+                printf("MySQL query error : %s\n", mysql_error(this->db));
+            }
+
+            return success;
+        }
 
         /**
          * Parameters for database connection

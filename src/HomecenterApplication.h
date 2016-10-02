@@ -14,6 +14,9 @@
 #include <service/DatabaseManager.h>
 #include <service/ReceiverActionManager.h>
 #include <DatabaseParameters.h>
+#include <iostream>
+#include <string>
+#include <repository/SensorRepository.h>
 
 using com::osteres::automation::Application;
 using com::osteres::automation::transmission::Transmitter;
@@ -22,6 +25,8 @@ using action::ReceiverAction;
 using service::DatabaseManager;
 using service::ReceiverActionManager;
 using com::osteres::automation::memory::Property;
+using repository::SensorRepository;
+using std::string;
 
 class HomecenterApplication : public Application
 {
