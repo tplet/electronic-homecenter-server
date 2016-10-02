@@ -2,8 +2,8 @@
 // Created by Thibault PLET on 21/08/2016.
 //
 
-#ifndef HOMECENTER_SERVER_SERVICE_RECEIVER_H
-#define HOMECENTER_SERVER_SERVICE_RECEIVER_H
+#ifndef HOMECENTER_SERVER_ACTION_RECEIVERACTION_H
+#define HOMECENTER_SERVER_ACTION_RECEIVERACTION_H
 
 #include <com/osteres/automation/action/Action.h>
 #include <com/osteres/automation/transmission/Transmitter.h>
@@ -13,14 +13,15 @@ using com::osteres::automation::action::Action;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::action::ActionManagerBase;
 
-namespace service {
-    class Receiver : public Action {
+namespace action
+{
+    class ReceiverAction : public Action {
     public:
 
         /**
          * Constructor
          */
-        Receiver(Transmitter *transmitter, ActionManagerBase * actionManager) {
+        ReceiverAction(Transmitter * transmitter, ActionManagerBase * actionManager) {
             this->transmitter = transmitter;
             this->actionManager = actionManager;
         }
@@ -61,4 +62,4 @@ namespace service {
     };
 }
 
-#endif //HOMECENTER_SERVER_SERVICE_RECEIVER_H
+#endif //HOMECENTER_SERVER_ACTION_RECEIVERACTION_H

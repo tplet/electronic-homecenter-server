@@ -10,17 +10,17 @@
 #include <com/osteres/automation/transmission/Transmitter.h>
 #include <com/osteres/automation/sensor/Identity.h>
 #include <com/osteres/automation/memory/Property.h>
-#include <service/Receiver.h>
+#include <action/ReceiverAction.h>
 #include <service/DatabaseManager.h>
-#include <action/ReceiverActionManager.h>
+#include <service/ReceiverActionManager.h>
 #include <DatabaseParameters.h>
 
 using com::osteres::automation::Application;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::sensor::Identity;
-using ServiceReceiver = service::Receiver;
+using action::ReceiverAction;
 using service::DatabaseManager;
-using action::ReceiverActionManager;
+using service::ReceiverActionManager;
 using com::osteres::automation::memory::Property;
 
 class HomecenterApplication : public Application
@@ -47,15 +47,15 @@ public:
         }
 
         // Remove receiver action manager
-        if (this->receiverActionManager != NULL) {
-            delete this->receiverActionManager;
-            this->receiverActionManager = NULL;
+        if (this->serviceReceiverActionManager != NULL) {
+            delete this->serviceReceiverActionManager;
+            this->serviceReceiverActionManager = NULL;
         }
 
-        // Remove service receiver
-        if (this->serviceReceiver != NULL) {
-            delete this->serviceReceiver;
-            this->serviceReceiver = NULL;
+        // Remove receiver action
+        if (this->receiverAction != NULL) {
+            delete this->receiverAction;
+            this->receiverAction = NULL;
         }
 
         // Remove service database
@@ -84,9 +84,9 @@ public:
          * Listen radio transmission, to process packet send by sensor
          */
         // Configure maximum waiting time to receive packet
-        this->serviceReceiver->getTransmitter()->getReceiver()->setTimeout(3000); // 3 s
+        this->receiverAction->getTransmitter()->getReceiver()->setTimeout(3000); // 3 s
         // Execute service (listen)
-        this->serviceReceiver->execute();
+        this->receiverAction->execute();
 
         /*
          * Step 2: Send
@@ -122,9 +122,9 @@ protected:
         this->transmitter = new Transmitter(radio, true);
         this->transmitter->setPropertySensorType(this->propertyType);
 
-        // Service receiver
-        this->receiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager);
-        this->serviceReceiver = new ServiceReceiver(this->transmitter, this->receiverActionManager);
+        // Receiver service
+        this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager);
+        this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
 
         // Ready flag
         this->ready = this->serviceDatabaseManager->isConnected();
@@ -141,9 +141,9 @@ protected:
     Transmitter * transmitter = NULL;
 
     /**
-     * Service receiver
+     * Receiver action
      */
-    ServiceReceiver * serviceReceiver = NULL;
+    ReceiverAction * receiverAction = NULL;
 
     /**
      * Service database manager
@@ -151,9 +151,9 @@ protected:
     DatabaseManager * serviceDatabaseManager = NULL;
 
     /**
-     * Action manager for receiver
+     * Service action manager for receiver
      */
-    ReceiverActionManager * receiverActionManager = NULL;
+    ReceiverActionManager * serviceReceiverActionManager = NULL;
 
     /**
      * Property for application (sensor) type
