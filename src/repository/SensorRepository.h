@@ -55,6 +55,30 @@ namespace repository
         }
 
         /**
+         * Find sensor by uid
+         *
+         * Don't forget to delete sensor object if no used anymore (if not null)
+         */
+        Sensor * findByUid(unsigned char uid)
+        {
+            string query = "SELECT `id`, `uid`, `type`, `name` FROM `sensor` WHERE `uid` = " + to_string(uid) + " LIMIT 1";
+            SingleResult result = this->serviceDatabaseManager->selectOne(query);
+
+            Sensor * sensor = NULL;
+            if (result.hasResult()) {
+                MYSQL_ROW row = result.getRow();
+
+                sensor = new Sensor();
+                sensor->setId(static_cast<unsigned long long>(atoll(row[0])));
+                sensor->setUid(static_cast<unsigned char>(atoi(row[1])));
+                sensor->setType(static_cast<unsigned char>(atoi(row[2])));
+                sensor->setName(row[3]);
+            }
+
+            return sensor;
+        }
+
+        /**
          * Get next sensor uid
          *
          * @TODO: Refator to get next id not used yet (max 255)
