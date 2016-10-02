@@ -7,16 +7,22 @@
 
 #include <com/osteres/automation/action/ActionManagerBase.h>
 #include <com/osteres/automation/action/implement/ConsoleDisplayPacket.h>
+#include <com/osteres/automation/transmission/Transmitter.h>
+#include <com/osteres/automation/transmission/packet/Command.h>
 #include <service/DatabaseManager.h>
 #include <string>
 #include <iostream>
 #include <action/SavePacketAction.h>
+#include <action/IdentifierRequestAction.h>
 
 using std::string;
 using com::osteres::automation::action::ActionManagerBase;
 using com::osteres::automation::action::implement::ConsoleDisplayPacket;
+using com::osteres::automation::transmission::Transmitter;
+using com::osteres::automation::transmission::packet::Command;
 using service::DatabaseManager;
 using action::SavePacketAction;
+using action::IdentifierRequestAction;
 
 namespace service
 {
@@ -26,10 +32,11 @@ namespace service
         /**
          * Constructor
          */
-        ReceiverActionManager(DatabaseManager * databaseManager)
+        ReceiverActionManager(DatabaseManager * databaseManager, Transmitter * transmitter)
         {
             this->actionDisplay = new ConsoleDisplayPacket();
             this->serviceDatabaseManager = databaseManager;
+            this->transmitter = transmitter;
         }
 
         /**
@@ -50,9 +57,15 @@ namespace service
             // Output packet to console (debug version) TODO: To remove in production
             this->actionDisplay->execute(packet);
 
-            // Save to database
+            // Save to database (for archive)
             SavePacketAction action(this->serviceDatabaseManager);
             action.execute(packet);
+
+            // Analyse some command
+            if (Command::IDENTIFIER_REQUEST == packet->getCommand()) {
+                IdentifierRequestAction action(this->serviceDatabaseManager, this->transmitter);
+                action.execute(packet);
+            }
         }
 
     protected:
@@ -67,6 +80,11 @@ namespace service
          * Service database manager
          */
         DatabaseManager * serviceDatabaseManager = NULL;
+
+        /**
+         * Transmitter
+         */
+        Transmitter * transmitter = NULL;
     };
 }
 

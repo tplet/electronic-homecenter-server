@@ -128,7 +128,7 @@ protected:
         this->transmitter->setPropertySensorType(this->propertyType);
 
         // Receiver service
-        this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager);
+        this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager, this->transmitter);
         this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
 
         // Ready flag
