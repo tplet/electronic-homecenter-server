@@ -112,7 +112,7 @@ namespace service
                 vector<MYSQL_ROW> rows = this->serviceDatabaseManager->select(query);
 
                 // Hydrate list
-                for (auto row : rows) {
+                for (auto & row : rows) {
                     list.push_back(static_cast<unsigned char>(atoi(row[0])));
                 }
 
