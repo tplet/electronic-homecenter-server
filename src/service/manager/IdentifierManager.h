@@ -47,7 +47,7 @@ namespace service
             /**
              * Get first free uid
              */
-            unsigned char getUidFree()
+            unsigned char generateFreeUid()
             {
                 SensorRepository * repositorySensor = this->serviceRepositoryContainer->getRepositorySensor();
 
@@ -84,9 +84,9 @@ namespace service
             /**
              * Get first free uid and save temporary
              */
-            unsigned char generateFreeUid()
+            unsigned char generateAndStoreFreeUid()
             {
-                unsigned char uid = this->getUidFree();
+                unsigned char uid = this->generateFreeUid();
 
                 // Create TimedProperty to store uid temporary
                 RTimedProperty<unsigned char> timedProperty(PROPERTY_DURATION, uid);

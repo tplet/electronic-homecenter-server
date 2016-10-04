@@ -53,7 +53,7 @@ namespace action
             bool execute(Packet *packet)
             {
                 // Generate uid
-                unsigned char uid = this->managerIdentifier->generateFreeUid();
+                unsigned char uid = this->managerIdentifier->generateAndStoreFreeUid();
 
                 // Send packet containing identifier
                 Packet *p = new Packet();
