@@ -12,11 +12,13 @@
 #include <mysql.h>
 #include <stdlib.h>
 #include <object/SingleResult.h>
+#include <vector>
 
 using entity::Sensor;
 using std::string;
 using object::SingleResult;
 using service::AbstractRepository;
+using std::vector;
 
 namespace service
 {
@@ -81,35 +83,52 @@ namespace service
             }
 
             /**
-             * Get next sensor uid
-             *
-             * @TODO: Refactor to get next id not used yet (max 255)
+             * Count number of sensor declared
              */
-            unsigned char getNextUid()
+            unsigned char count()
             {
                 string query = "SELECT COUNT(*) FROM `sensor`";
                 SingleResult result = this->serviceDatabaseManager->selectOne(query);
 
-                unsigned char uid = 0;
+                unsigned char count = 0;
                 if (result.hasResult()) {
                     MYSQL_ROW row = result.getRow();
-                    uid = static_cast<unsigned char>(atoi(row[0]));
+                    count = static_cast<unsigned char>(atoi(row[0]));
                 }
-                uid++;
+                count++;
 
-                return uid;
+                return count;
             }
 
             /**
-             * Create new Sensor from sensor type
+             * Get list of uid used
              */
-            Sensor * createFromType(unsigned char type)
+            vector<unsigned char> getUidUsed()
+            {
+                vector<unsigned char> list;
+
+                // Query
+                string query = "SELECT uid FROM `sensor`";
+                vector<MYSQL_ROW> rows = this->serviceDatabaseManager->select(query);
+
+                // Hydrate list
+                for (auto row : rows) {
+                    list.push_back(static_cast<unsigned char>(atoi(row[0])));
+                }
+
+                return list;
+            }
+
+            /**
+             * Create new Sensor from sensor type and identifier
+             */
+            Sensor * createFromTypeAndUid(unsigned char type, unsigned char uid)
             {
                 Sensor * sensor = NULL;
 
                 string query = "INSERT INTO `sensor` ";
                 query += "(`uid`, `type`, `name`) ";
-                query += "VALUES('" + to_string(this->getNextUid()) + "', '" + to_string(type) +
+                query += "VALUES('" + to_string(uid) + "', '" + to_string(type) +
                         "', 'Unknow sensor')";
 
                 // Insert

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <action/SavePacketAction.h>
 #include <action/packet/IdentifierAssignAction.h>
+#include <service/manager/IdentifierManager.h>
 
 using std::string;
 using com::osteres::automation::action::ActionManagerBase;
@@ -25,6 +26,7 @@ using service::DatabaseManager;
 using service::RepositoryContainer;
 using action::SavePacketAction;
 using action::packet::IdentifierAssignAction;
+using service::manager::IdentifierManager;
 
 namespace service
 {
@@ -42,6 +44,7 @@ namespace service
 
             // Action
             this->actionDisplay = new ConsoleDisplayPacket();
+            this->managerIdentifier = new IdentifierManager(this->serviceRepositoryContainer);
         }
 
         /**
@@ -52,6 +55,11 @@ namespace service
             if (this->actionDisplay != NULL) {
                 delete this->actionDisplay;
                 this->actionDisplay = NULL;
+            }
+            // Remove manager identifier
+            if (this->managerIdentifier != NULL) {
+                delete this->managerIdentifier;
+                this->managerIdentifier = NULL;
             }
         }
 
@@ -66,7 +74,11 @@ namespace service
             // Is packet has identifier ?
             // No: Ignore this packet and send a generated identifier
             if (packet->getSourceIdentifier() == 0) {
-                IdentifierAssignAction action(this->serviceRepositoryContainer, this->transmitter);
+                IdentifierAssignAction action(
+                    this->serviceRepositoryContainer,
+                    this->transmitter,
+                    this->managerIdentifier
+                );
                 action.execute(packet);
             }
             // Yes: Potentially allowed to communicate with server
@@ -83,6 +95,8 @@ namespace service
                 // Analyse command
             }
         }
+
+
 
     protected:
 
@@ -101,6 +115,11 @@ namespace service
          * Service repository container
          */
         RepositoryContainer * serviceRepositoryContainer = NULL;
+
+        /**
+         * Manager identifier
+         */
+        IdentifierManager * managerIdentifier = NULL;
     };
 }
 

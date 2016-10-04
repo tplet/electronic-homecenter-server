@@ -11,6 +11,8 @@
 #include <entity/Sensor.h>
 #include <com/osteres/automation/transmission/Transmitter.h>
 #include <com/osteres/automation/transmission/packet/Command.h>
+#include <vector>
+#include <service/manager/IdentifierManager.h>
 
 using com::osteres::automation::transmission::packet::Packet;
 using service::repository::SensorRepository;
@@ -18,6 +20,8 @@ using action::AbstractPacketAction;
 using entity::Sensor;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::transmission::packet::Command;
+using std::vector;
+using service::manager::IdentifierManager;
 
 
 namespace action
@@ -31,9 +35,14 @@ namespace action
             /**
              * Constructor
              */
-            IdentifierAssignAction(RepositoryContainer * repositoryContainer, Transmitter *transmitter) : AbstractPacketAction(repositoryContainer)
+            IdentifierAssignAction(
+                RepositoryContainer * repositoryContainer,
+                Transmitter *transmitter,
+                IdentifierManager * identifierManager
+            ) : AbstractPacketAction(repositoryContainer)
             {
                 this->transmitter = transmitter;
+                this->managerIdentifier = identifierManager;
             }
 
             /**
@@ -43,10 +52,8 @@ namespace action
              */
             bool execute(Packet *packet)
             {
-                SensorRepository * repositorySensor = this->getServiceRepositoryContainer()->getRepositorySensor();
-
-                // Declare sensor
-                Sensor * sensor = repositorySensor->createFromType(packet->getSourceType());
+                // Generate uid
+                unsigned char uid = this->managerIdentifier->generateFreeUid();
 
                 // Send packet containing identifier
                 Packet *p = new Packet();
@@ -54,12 +61,11 @@ namespace action
                 p->setSourceType(packet->getTarget()); // Master hasn't identifier
                 p->setSourceIdentifier(packet->getTarget());
                 p->setCommand(Command::IDENTIFIER_RESPONSE);
-                p->setDataUChar1(sensor->getUid());
+                p->setDataUChar1(uid);
                 p->setLast(true);
                 this->transmitter->send(p);
 
                 // Free memory
-                delete sensor;
                 delete p;
 
                 this->executed = true;
@@ -72,6 +78,11 @@ namespace action
              * Transmitter
              */
             Transmitter * transmitter = NULL;
+
+            /**
+             * Manager identifier
+             */
+            IdentifierManager * managerIdentifier = NULL;
         };
     }
 }
