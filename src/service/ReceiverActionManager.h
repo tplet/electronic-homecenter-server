@@ -10,10 +10,11 @@
 #include <com/osteres/automation/transmission/Transmitter.h>
 #include <com/osteres/automation/transmission/packet/Command.h>
 #include <service/DatabaseManager.h>
+#include <service/RepositoryContainer.h>
 #include <string>
 #include <iostream>
 #include <action/SavePacketAction.h>
-#include <action/IdentifierRequestAction.h>
+#include <action/packet/IdentifierAssignAction.h>
 
 using std::string;
 using com::osteres::automation::action::ActionManagerBase;
@@ -21,8 +22,9 @@ using com::osteres::automation::action::implement::ConsoleDisplayPacket;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::transmission::packet::Command;
 using service::DatabaseManager;
+using service::RepositoryContainer;
 using action::SavePacketAction;
-using action::IdentifierRequestAction;
+using action::packet::IdentifierAssignAction;
 
 namespace service
 {
@@ -32,11 +34,14 @@ namespace service
         /**
          * Constructor
          */
-        ReceiverActionManager(DatabaseManager * databaseManager, Transmitter * transmitter)
+        ReceiverActionManager(RepositoryContainer * repositoryContainer, Transmitter * transmitter)
         {
-            this->actionDisplay = new ConsoleDisplayPacket();
-            this->serviceDatabaseManager = databaseManager;
+            // Vars
+            this->serviceRepositoryContainer = repositoryContainer;
             this->transmitter = transmitter;
+
+            // Action
+            this->actionDisplay = new ConsoleDisplayPacket();
         }
 
         /**
@@ -53,18 +58,29 @@ namespace service
         /**
          * Process packet
          */
-        void processPacket(Packet *packet) {
+        void processPacket(Packet *packet)
+        {
             // Output packet to console (debug version) TODO: To remove in production
             this->actionDisplay->execute(packet);
 
-            // Save to database (for archive)
-            SavePacketAction action(this->serviceDatabaseManager);
-            action.execute(packet);
-
-            // Analyse some command
-            if (Command::IDENTIFIER_REQUEST == packet->getCommand()) {
-                IdentifierRequestAction action(this->serviceDatabaseManager, this->transmitter);
+            // Is packet has identifier ?
+            // No: Ignore this packet and send a generated identifier
+            if (packet->getSourceIdentifier() == 0) {
+                IdentifierAssignAction action(this->serviceRepositoryContainer, this->transmitter);
                 action.execute(packet);
+            }
+            // Yes: Potentially allowed to communicate with server
+            else {
+                // Is identifier exists in database ?
+
+                // No: Create them before processing packet
+                // Yes: Process packet
+
+                // Save to database (for archive)
+                SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
+                action.execute(packet);
+
+                // Analyse command
             }
         }
 
@@ -77,14 +93,14 @@ namespace service
         ConsoleDisplayPacket *actionDisplay = NULL;
 
         /**
-         * Service database manager
-         */
-        DatabaseManager * serviceDatabaseManager = NULL;
-
-        /**
          * Transmitter
          */
         Transmitter * transmitter = NULL;
+
+        /**
+         * Service repository container
+         */
+        RepositoryContainer * serviceRepositoryContainer = NULL;
     };
 }
 

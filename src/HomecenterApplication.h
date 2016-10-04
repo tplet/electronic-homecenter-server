@@ -13,10 +13,10 @@
 #include <action/ReceiverAction.h>
 #include <service/DatabaseManager.h>
 #include <service/ReceiverActionManager.h>
+#include <service/RepositoryContainer.h>
 #include <DatabaseParameters.h>
 #include <iostream>
 #include <string>
-#include <repository/SensorRepository.h>
 
 using com::osteres::automation::Application;
 using com::osteres::automation::transmission::Transmitter;
@@ -24,8 +24,8 @@ using com::osteres::automation::sensor::Identity;
 using action::ReceiverAction;
 using service::DatabaseManager;
 using service::ReceiverActionManager;
+using service::RepositoryContainer;
 using com::osteres::automation::memory::Property;
-using repository::SensorRepository;
 using std::string;
 
 class HomecenterApplication : public Application
@@ -67,6 +67,12 @@ public:
         if (this->serviceDatabaseManager != NULL) {
             delete this->serviceDatabaseManager;
             this->serviceDatabaseManager = NULL;
+        }
+
+        // Remove service repository container
+        if (this->serviceRepositoryContainer != NULL) {
+            delete this->serviceRepositoryContainer;
+            this->serviceRepositoryContainer = NULL;
         }
     }
 
@@ -127,8 +133,11 @@ protected:
         this->transmitter = new Transmitter(radio, true);
         this->transmitter->setPropertySensorType(this->propertyType);
 
+        // Service
+        this->serviceRepositoryContainer = new RepositoryContainer(this->serviceDatabaseManager);
+        this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceRepositoryContainer, this->transmitter);
+
         // Receiver service
-        this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceDatabaseManager, this->transmitter);
         this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
 
         // Ready flag
@@ -164,6 +173,11 @@ protected:
      * Property for application (sensor) type
      */
     Property<unsigned char> * propertyType = NULL;
+
+    /**
+     * Service repository container
+     */
+    RepositoryContainer * serviceRepositoryContainer = NULL;
 
 };
 
