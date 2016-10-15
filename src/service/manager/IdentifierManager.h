@@ -11,11 +11,13 @@
 #include <vector>
 #include <object/IdentifierVector.h>
 #include <memory/RTimedProperty.h>
+#include <entity/Sensor.h>
 
 using service::RepositoryContainer;
 using std::vector;
 using object::IdentifierVector;
 using memory::RTimedProperty;
+using entity::Sensor;
 
 namespace service
 {
@@ -42,6 +44,26 @@ namespace service
                     delete this->identifierVector;
                     this->identifierVector = NULL;
                 }
+            }
+
+            /**
+             * Find sensor by uid
+             *
+             * Don't forget to delete sensor object if no used anymore (if not null)
+             */
+            Sensor * getByUid(unsigned char uid)
+            {
+                return this->serviceRepositoryContainer->getRepositorySensor()->findByUid(uid);
+            }
+
+            /**
+             * Generate new sensor object and hydrate properties
+             *
+             * Don't forget to delete sensor object if no used anymore (if not null)
+             */
+            Sensor * create(unsigned char type, unsigned char uid)
+            {
+                return this->serviceRepositoryContainer->getRepositorySensor()->createFromTypeAndUid(type, uid);
             }
 
             /**
@@ -90,7 +112,7 @@ namespace service
 
                 // Create TimedProperty to store uid temporary
                 RTimedProperty<unsigned char> timedProperty(PROPERTY_DURATION, uid);
-                this->identifierVector->push_back(timedProperty);
+                this->getIdentifierVector()->push_back(timedProperty);
 
                 return uid;
             }

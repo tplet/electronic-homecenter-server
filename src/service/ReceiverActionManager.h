@@ -16,6 +16,7 @@
 #include <action/SavePacketAction.h>
 #include <action/packet/IdentifierAssignAction.h>
 #include <service/manager/IdentifierManager.h>
+#include <entity/Sensor.h>
 
 using std::string;
 using com::osteres::automation::action::ActionManagerBase;
@@ -27,6 +28,7 @@ using service::RepositoryContainer;
 using action::SavePacketAction;
 using action::packet::IdentifierAssignAction;
 using service::manager::IdentifierManager;
+using entity::Sensor;
 
 namespace service
 {
@@ -83,16 +85,21 @@ namespace service
             }
             // Yes: Potentially allowed to communicate with server
             else {
-                // Is identifier exists in database ?
+                Sensor * sensor = this->managerIdentifier->getByUid(packet->getSourceIdentifier());
+                // Is identifier found
+                if (sensor == NULL) {
+                    // No: Create them before processing packet
+                    sensor = this->managerIdentifier->create(packet->getSourceType(), packet->getSourceIdentifier());
+                }
 
-                // No: Create them before processing packet
-                // Yes: Process packet
-
-                // Save to database (for archive)
+                // Save packet to database (for archive)
                 SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
                 action.execute(packet);
 
                 // Analyse command
+
+                // End: free memory
+                delete sensor;
             }
         }
 
