@@ -67,7 +67,7 @@ namespace action
                 p->setCommand(Command::IDENTIFIER_RESPONSE);
                 p->setDataUChar1(uid);
                 p->setLast(true);
-                this->transmitter->send(p);
+                this->transmitter->sendAndConfirm(p);
                 cout << "Identifier send to sensor" << endl;
 
                 // Free memory
