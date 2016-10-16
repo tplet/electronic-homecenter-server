@@ -76,33 +76,38 @@ namespace service
             // Output packet to console (debug version) TODO: To remove in production
             this->actionDisplay->execute(packet);
 
-            // Is packet has identifier ?
-            // No: Ignore this packet and send a generated identifier
-            if (packet->getSourceIdentifier() == 0) {
-                IdentifierAssignAction action(
-                    this->serviceRepositoryContainer,
-                    this->transmitter,
-                    this->managerIdentifier
-                );
-                action.execute(packet);
-            }
-            // Yes: Potentially allowed to communicate with server
-            else {
-                Sensor * sensor = this->managerIdentifier->getByUid(packet->getSourceIdentifier());
-                // Is identifier found
-                if (sensor == NULL) {
-                    // No: Create them before processing packet
-                    sensor = this->managerIdentifier->create(packet->getSourceType(), packet->getSourceIdentifier());
+            // Ignore OK command (useless for treatment)
+            if (packet->getCommand() != Command::OK) {
+
+                // Is packet has identifier ?
+                // No: Ignore this packet and send a generated identifier
+                if (packet->getSourceIdentifier() == 0) {
+                    IdentifierAssignAction action(
+                            this->serviceRepositoryContainer,
+                            this->transmitter,
+                            this->managerIdentifier
+                    );
+                    action.execute(packet);
                 }
+                    // Yes: Potentially allowed to communicate with server
+                else {
+                    Sensor *sensor = this->managerIdentifier->getByUid(packet->getSourceIdentifier());
+                    // Is identifier found
+                    if (sensor == NULL) {
+                        // No: Create them before processing packet
+                        sensor = this->managerIdentifier->create(packet->getSourceType(),
+                                                                 packet->getSourceIdentifier());
+                    }
 
-                // Save packet to database (for archive)
-                SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
-                action.execute(packet);
+                    // Save packet to database (for archive)
+                    SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
+                    action.execute(packet);
 
-                // Analyse command
+                    // Analyse command
 
-                // End: free memory
-                delete sensor;
+                    // End: free memory
+                    delete sensor;
+                }
             }
         }
 
