@@ -13,6 +13,7 @@
 #include <service/RepositoryContainer.h>
 #include <string>
 #include <iostream>
+#include <inttypes.h>
 #include <action/SavePacketAction.h>
 #include <action/packet/IdentifierAssignAction.h>
 #include <service/manager/IdentifierManager.h>
@@ -75,7 +76,7 @@ namespace service
 
             // Is packet has identifier ?
             // No: Ignore this packet and send a generated identifier
-            if (packet->getSourceIdentifier() == 0) {
+            if (packet->getSourceIdentifier() == 0 || packet->getSourceIdentifier() == 255) {
                 IdentifierAssignAction action(
                     this->serviceRepositoryContainer,
                     this->transmitter,
