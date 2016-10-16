@@ -13,6 +13,8 @@
 #include <com/osteres/automation/transmission/packet/Command.h>
 #include <vector>
 #include <service/manager/IdentifierManager.h>
+#include <iostream>
+#include <inttypes.h>
 
 using com::osteres::automation::transmission::packet::Packet;
 using service::repository::SensorRepository;
@@ -52,8 +54,10 @@ namespace action
              */
             bool execute(Packet *packet)
             {
+                cout << "Request for a new identifier." << endl;
                 // Generate uid
                 unsigned char uid = this->managerIdentifier->generateAndStoreFreeUid();
+                cout << "Generated identifier: " << (int)uid << endl;
 
                 // Send packet containing identifier
                 Packet *p = new Packet();
@@ -64,6 +68,7 @@ namespace action
                 p->setDataUChar1(uid);
                 p->setLast(true);
                 this->transmitter->send(p);
+                cout << "Identifier send to sensor" << endl;
 
                 // Free memory
                 delete p;
