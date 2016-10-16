@@ -5,20 +5,20 @@
 #ifndef HOMECENTER_SERVER_SERVICE_REPOSITORY_SENSORREPOSITORY_H
 #define HOMECENTER_SERVER_SERVICE_REPOSITORY_SENSORREPOSITORY_H
 
-#include <service/AbstractRepository.h>
-#include <entity/Sensor.h>
 #include <string>
 #include <iostream>
 #include <mysql.h>
 #include <stdlib.h>
 #include <object/SingleResult.h>
 #include <vector>
+#include <service/AbstractRepository.h>
+#include <entity/Sensor.h>
 
-using entity::Sensor;
 using std::string;
 using object::SingleResult;
-using service::AbstractRepository;
 using std::vector;
+using service::AbstractRepository;
+using entity::Sensor;
 
 namespace service
 {
