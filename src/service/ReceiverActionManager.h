@@ -76,10 +76,6 @@ namespace service
             // Output packet to console (debug version) TODO: To remove in production
             this->actionDisplay->execute(packet);
 
-            // Send OK response
-            ResponseOkAction actionOk(this->transmitter);
-            actionOk.execute(packet, 0); // Use 0 for type, master has no type
-
             // Is packet has identifier ?
             // No: Ignore this packet and send a generated identifier
             if (packet->getSourceIdentifier() == 0) {
