@@ -12,6 +12,7 @@
 #include <object/IdentifierVector.h>
 #include <memory/RTimedProperty.h>
 #include <entity/Sensor.h>
+#include <algorithm>
 
 using service::RepositoryContainer;
 using std::vector;
