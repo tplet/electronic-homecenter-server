@@ -17,7 +17,7 @@ namespace object
     {
     public:
         /**
-         * Make iterator accessibl
+         * Make iterator available
          */
         using vector<TimedProperty<unsigned char>>::iterator;
 
@@ -26,7 +26,7 @@ namespace object
          */
         void refresh()
         {
-            for (__self::iterator iterator = this->begin(); iterator != this->end(); ) {
+            for (IdentifierVector::iterator iterator = this->begin(); iterator != this->end(); ) {
                 if (iterator->isOutdated()) {
                     iterator = this->erase(iterator);
                 } else {
