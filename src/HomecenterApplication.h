@@ -128,10 +128,14 @@ protected:
         // Property type
         this->propertyType = new Property<unsigned char>();
         this->propertyType->set(Identity::MASTER);
+        // Property identifier
+        this->propertyIdentifier = new Property<unsigned char>();
+        this->propertyIdentifier->set(Identity::MASTER);
 
         // Create and configure transmitter (as master)
         this->transmitter = new Transmitter(radio, true);
         this->transmitter->setPropertySensorType(this->propertyType);
+        this->transmitter->setPropertySensorIdentifier(this->propertyIdentifier);
 
         // Service
         this->serviceRepositoryContainer = new RepositoryContainer(this->serviceDatabaseManager);
@@ -173,6 +177,11 @@ protected:
      * Property for application (sensor) type
      */
     Property<unsigned char> * propertyType = NULL;
+
+    /**
+     * Property for application (sensor) identifier
+     */
+    Property<unsigned char> * propertyIdentifier = NULL;
 
     /**
      * Service repository container

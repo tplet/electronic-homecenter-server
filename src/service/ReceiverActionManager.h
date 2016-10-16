@@ -82,7 +82,7 @@ namespace service
 
             // Is packet has identifier ?
             // No: Ignore this packet and send a generated identifier
-            if (packet->getSourceIdentifier() == 0 || packet->getSourceIdentifier() == 255) {
+            if (packet->getSourceIdentifier() == 0) {
                 IdentifierAssignAction action(
                     this->serviceRepositoryContainer,
                     this->transmitter,
