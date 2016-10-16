@@ -108,12 +108,33 @@ namespace service {
         }
 
         /**
+         * Flag to indicate if auto-connect is allowed when needed
+         */
+        bool isAutoConnect()
+        {
+            return this->autoConnect;
+        }
+
+        /**
+         * Set flag for auto-connect
+         */
+        void setAutoConnect(bool autoConnect)
+        {
+            this->autoConnect = autoConnect;
+        }
+
+        /**
          * Insert query
          * Return primary value of inserted row
          */
         unsigned long long insert(string query)
         {
             unsigned long long id = 0;
+
+            // Try to reconnect if needed
+            if (!this->isConnected() && this->isAutoConnect()) {
+                this->connect();
+            }
 
             if (this->isConnected() && this->query(query)) {
                 id = mysql_insert_id(this->db);
@@ -133,6 +154,11 @@ namespace service {
         vector<MYSQL_ROW> select(string query)
         {
             vector<MYSQL_ROW> list;
+
+            // Try to reconnect if needed
+            if (!this->isConnected() && this->isAutoConnect()) {
+                this->connect();
+            }
 
             if (this->isConnected() && this->query(query)) {
 
@@ -158,6 +184,11 @@ namespace service {
          */
         SingleResult selectOne(string query)
         {
+            // Try to reconnect if needed
+            if (!this->isConnected() && this->isAutoConnect()) {
+                this->connect();
+            }
+
             SingleResult result;
             if (this->isConnected() && this->query(query)) {
 
@@ -206,6 +237,11 @@ namespace service {
          * Flag to indicate if connection to database is active
          */
         bool connected = false;
+
+        /**
+         * Flag to allow auto-connect or re-connect when needed
+         */
+        bool autoConnect = true;
     };
 }
 
