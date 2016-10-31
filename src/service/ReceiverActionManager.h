@@ -103,10 +103,12 @@ namespace service
                     SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
                     action.execute(packet);
 
-                    // Analyse command
+                    // Analyse command (DATETIME_REQUEST, etc.)
 
                     // End: free memory
-                    delete sensor;
+                    if (sensor != NULL) {
+                        delete sensor;
+                    }
                 }
             }
         }
