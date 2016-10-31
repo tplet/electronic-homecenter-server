@@ -66,7 +66,7 @@ namespace action
                 p->setSourceIdentifier(packet->getTarget());
                 p->setCommand(Command::IDENTIFIER_RESPONSE);
                 p->setDataUChar1(uid);
-                this->transmitter->add(p, true);
+                this->transmitter->add(p); // No confirmation needed, else multiple id can be generated for each sensor...
                 cout << "Identifier send to sensor" << endl;
 
                 // Free memory
