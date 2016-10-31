@@ -66,8 +66,7 @@ namespace action
                 p->setSourceIdentifier(packet->getTarget());
                 p->setCommand(Command::IDENTIFIER_RESPONSE);
                 p->setDataUChar1(uid);
-                p->setLast(true);
-                this->transmitter->sendAndConfirm(p);
+                this->transmitter->add(p, true);
                 cout << "Identifier send to sensor" << endl;
 
                 // Free memory
