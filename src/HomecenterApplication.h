@@ -141,7 +141,8 @@ protected:
         this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceRepositoryContainer, this->transmitter);
 
         // Receiver service
-        this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
+        //this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
+        this->transmitter->setActionManager(this->serviceReceiverActionManager);
 
         // Ready flag
         this->ready = this->serviceDatabaseManager->isConnected();
