@@ -7,22 +7,16 @@
 
 #include <action/AbstractPacketAction.h>
 #include <com/osteres/automation/transmission/packet/Packet.h>
-#include <service/repository/SensorRepository.h>
-#include <entity/Sensor.h>
 #include <com/osteres/automation/transmission/Transmitter.h>
 #include <com/osteres/automation/transmission/packet/Command.h>
-#include <vector>
 #include <service/manager/IdentifierManager.h>
 #include <iostream>
 #include <inttypes.h>
 
 using com::osteres::automation::transmission::packet::Packet;
-using service::repository::SensorRepository;
 using action::AbstractPacketAction;
-using entity::Sensor;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::transmission::packet::Command;
-using std::vector;
 using service::manager::IdentifierManager;
 
 
@@ -50,7 +44,7 @@ namespace action
             /**
              * Execute action
              *
-             * Save packet to database
+             * Send generated identifier to sensor
              */
             bool execute(Packet *packet)
             {
