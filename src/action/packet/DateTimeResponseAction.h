@@ -70,7 +70,10 @@ namespace action
             long int getTimestamp()
             {
                 time_t t = time(0);
-                long int now = static_cast<long int> (t);
+                struct tm * tz = localtime(&t);
+                long int now = tz->tm_gmtoff;
+                delete tz;
+
                 return now;
             }
 
