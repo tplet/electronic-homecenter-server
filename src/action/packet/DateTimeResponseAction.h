@@ -72,7 +72,6 @@ namespace action
                 time_t t = time(0);
                 struct tm * tz = localtime(&t);
                 long int now = tz->tm_gmtoff;
-                delete tz;
 
                 return now;
             }
