@@ -55,7 +55,7 @@ namespace action
                 p->setSourceIdentifier(packet->getTarget());
                 p->setCommand(Command::DATETIME_RESPONSE);
                 p->setDataLong1(timestamp);
-                this->transmitter->add(p, true);
+                this->transmitter->add(p);
                 cout << "Datetime prepared for sending to sensor" << endl;
 
                 this->executed = true;
