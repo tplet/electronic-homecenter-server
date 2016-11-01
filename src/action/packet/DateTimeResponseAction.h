@@ -70,7 +70,7 @@ namespace action
             long int getTimestamp()
             {
                 time_t t = time(0);
-                cout << "Current time: " << ctime(t) << endl;
+                cout << "Current time: " << ctime(&t) << endl;
                 long int now = static_cast<long int> (t);
                 return now;
             }
