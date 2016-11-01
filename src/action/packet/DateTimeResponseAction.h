@@ -70,9 +70,8 @@ namespace action
             long int getTimestamp()
             {
                 time_t t = time(0);
-                struct tm * tz = localtime(&t);
-                long int now = tz->tm_gmtoff;
-
+                cout << "Current time: " << ctime(t) << endl;
+                long int now = static_cast<long int> (t);
                 return now;
             }
 
