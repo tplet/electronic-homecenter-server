@@ -62,8 +62,8 @@ sudo rm -Rf ~/bin
 mkdir ~/bin
 cd bin
 sudo make ../homecenter-server/vendors/common/vendors/RF24
-sudo cmake ../homecenter-server
+sudo cmake -DCMAKE_BUILD_TYPE=Debug ../homecenter-server
 sudo make
 cd ../
-sudo bin/homecenter_server
+sudo gdb -ex run bin/homecenter_server
 ```

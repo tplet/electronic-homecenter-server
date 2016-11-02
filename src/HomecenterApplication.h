@@ -91,19 +91,18 @@ public:
     void process()
     {
         /*
-         * Step 1: Receive
-         * Listen radio transmission, to process packet send by sensor
-         */
-        // Configure maximum waiting time to receive packet
-        this->receiverAction->getTransmitter()->getReceiver()->setTimeout(3000); // 3 s
-        // Execute service (listen)
-        this->receiverAction->execute();
-
-        /*
-         * Step 2: Send
-         * Read packet queue to send to sensor and send packet one by one
+         * Step 1: Get all packet to send
+         * and push to transmitter queue. They will be send during process
          */
         // TODO
+
+        /*
+         * Step 2: Launch Receive - Send - Receive process
+         * Listen radio transmission, to process packet send by sensor
+         * Send queued packet (from db and generated during receiving step)
+         * Listen again for response (OK confirmation for example)
+         */
+        this->transmitter->rsr(3000); // 3s for receiving
     }
 
     /**
@@ -142,7 +141,8 @@ protected:
         this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceRepositoryContainer, this->transmitter);
 
         // Receiver service
-        this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
+        //this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
+        this->transmitter->setActionManager(this->serviceReceiverActionManager);
 
         // Ready flag
         this->ready = this->serviceDatabaseManager->isConnected();

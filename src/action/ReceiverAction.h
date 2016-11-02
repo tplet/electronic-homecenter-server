@@ -13,6 +13,9 @@ using com::osteres::automation::action::Action;
 using com::osteres::automation::transmission::Transmitter;
 using com::osteres::automation::action::ActionManagerBase;
 
+/**
+ * USELESS?
+ */
 namespace action
 {
     class ReceiverAction : public Action {
@@ -34,7 +37,7 @@ namespace action
             this->transmitter->setActionManager(this->actionManager);
 
             // Listen
-            this->transmitter->listen();
+            //this->transmitter->listen();
 
             this->executed = true;
             return true;

@@ -17,6 +17,7 @@
 #include <inttypes.h>
 #include <action/SavePacketAction.h>
 #include <action/packet/IdentifierAssignAction.h>
+#include <action/packet/DateTimeResponseAction.h>
 #include <service/manager/IdentifierManager.h>
 #include <entity/Sensor.h>
 
@@ -30,6 +31,7 @@ using service::DatabaseManager;
 using service::RepositoryContainer;
 using action::SavePacketAction;
 using action::packet::IdentifierAssignAction;
+using action::packet::DateTimeResponseAction;
 using service::manager::IdentifierManager;
 using entity::Sensor;
 
@@ -103,10 +105,21 @@ namespace service
                     SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
                     action.execute(packet);
 
+                    //
                     // Analyse command
+                    //
+
+                    // DateTime request
+                    if (packet->getCommand() == Command::DATETIME_REQUEST) {
+                        DateTimeResponseAction action(this->serviceRepositoryContainer, this->transmitter);
+                        action.execute(packet);
+                    }
+
 
                     // End: free memory
-                    delete sensor;
+                    if (sensor != NULL) {
+                        delete sensor;
+                    }
                 }
             }
         }
