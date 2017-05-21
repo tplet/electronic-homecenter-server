@@ -11,6 +11,7 @@
 #include <vector>
 #include <entity/PacketQueue.h>
 #include <service/converter/PacketConverter.h>
+#include <com/osteres/automation/action/implement/ConsoleDisplayPacket.h>
 
 using service::RepositoryContainer;
 using com::osteres::automation::transmission::Transmitter;
@@ -18,6 +19,7 @@ using service::repository::PacketQueueRepository;
 using std::vector;
 using entity::PacketQueue;
 using service::converter::PacketConverter;
+using com::osteres::automation::action::implement::ConsoleDisplayPacket;
 
 namespace service
 {
@@ -33,6 +35,7 @@ namespace service
             this->transmitter = transmitter;
 
             this->packetConverter = new PacketConverter();
+            this->actionDisplay = new ConsoleDisplayPacket();
         }
 
         /**
@@ -44,6 +47,12 @@ namespace service
             if (this->packetConverter != NULL) {
                 delete this->packetConverter;
                 this->packetConverter = NULL;
+            }
+
+            // Remove action display
+            if (this->actionDisplay != NULL) {
+                delete this->actionDisplay;
+                this->actionDisplay = NULL;
             }
         }
 
@@ -58,12 +67,20 @@ namespace service
             vector<PacketQueue *> list = packetQueueRepository->fetchAll();
 
             if (list.size() > 0) {
+                Packet * packet = NULL;
                 // For each packet queue found
                 vector<unsigned long long> ids;
                 for (auto &packetQueue : list) {
-                    // Add to transmitter
-                    this->getTransmitter()->add(this->getPacketConverter()->convert(packetQueue));
+                    // Convert PacketQueue to Packet
+                    packet = this->getPacketConverter()->convert(packetQueue);
 
+                    // Add to transmitter for send
+                    this->getTransmitter()->add(packet);
+
+                    // Console display
+                    this->getActionDisplay()->execute(packet, false);
+
+                    // Push PacketQueue id to remove after
                     ids.push_back(packetQueue->getId());
 
                     // Free memory
@@ -99,7 +116,21 @@ namespace service
             return this->packetConverter;
         }
 
+        /**
+         * Get action to output packet to console
+         */
+        ConsoleDisplayPacket * getActionDisplay()
+        {
+            return this->actionDisplay;
+        }
+
     protected:
+
+        /**
+         * Action to output packet to console
+         * TODO: To remove in production? Or edit to print into log
+         */
+        ConsoleDisplayPacket * actionDisplay = NULL;
 
         /**
          * Service repository container

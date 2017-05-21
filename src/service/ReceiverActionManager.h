@@ -76,7 +76,7 @@ namespace service
         void processPacket(Packet *packet)
         {
             // Output packet to console (debug version) TODO: To remove in production
-            this->actionDisplay->execute(packet);
+            this->actionDisplay->execute(packet, true);
 
             // Ignore OK command (useless for treatment)
             if (packet->getCommand() != Command::OK) {
