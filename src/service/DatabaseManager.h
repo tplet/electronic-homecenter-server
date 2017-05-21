@@ -164,6 +164,21 @@ namespace service {
         }
 
         /**
+         * Execute query
+         *
+         * @return bool True if success, false otherwise
+         */
+        bool execute(string query)
+        {
+            // Try to reconnect if needed
+            if (!this->isConnected() && this->isAutoConnect()) {
+                this->connect();
+            }
+
+            return this->isConnected() && this->query(query);
+        }
+
+        /**
          * Select multiple
          */
         vector<MYSQL_ROW> select(string query)
