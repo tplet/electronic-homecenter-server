@@ -14,6 +14,7 @@
 #include <service/DatabaseManager.h>
 #include <service/ReceiverActionManager.h>
 #include <service/RepositoryContainer.h>
+#include <service/QueueService.h>
 #include <DatabaseParameters.h>
 #include <iostream>
 #include <string>
@@ -25,6 +26,7 @@ using action::ReceiverAction;
 using service::DatabaseManager;
 using service::ReceiverActionManager;
 using service::RepositoryContainer;
+using service::QueueService;
 using com::osteres::automation::memory::Property;
 using std::string;
 
@@ -74,6 +76,12 @@ public:
             delete this->serviceRepositoryContainer;
             this->serviceRepositoryContainer = NULL;
         }
+
+        // Remove service queue
+        if (this->serviceQueue != NULL) {
+            delete this->serviceQueue;
+            this->serviceQueue = NULL;
+        }
     }
 
     /**
@@ -94,7 +102,7 @@ public:
          * Step 1: Get all packet to send
          * and push to transmitter queue. They will be send during process
          */
-        // TODO
+        this->serviceQueue->sendEnqueuedPacket();
 
         /*
          * Step 2: Launch Receive - Send - Receive process
@@ -139,6 +147,7 @@ protected:
         // Service
         this->serviceRepositoryContainer = new RepositoryContainer(this->serviceDatabaseManager);
         this->serviceReceiverActionManager = new ReceiverActionManager(this->serviceRepositoryContainer, this->transmitter);
+        this->serviceQueue = new QueueService(this->serviceRepositoryContainer, this->transmitter);
 
         // Receiver service
         //this->receiverAction = new ReceiverAction(this->transmitter, this->serviceReceiverActionManager);
@@ -172,6 +181,11 @@ protected:
      * Service action manager for receiver
      */
     ReceiverActionManager * serviceReceiverActionManager = NULL;
+
+    /**
+     * Queue service
+     */
+    QueueService * serviceQueue = NULL;
 
     /**
      * Property for application (sensor) type

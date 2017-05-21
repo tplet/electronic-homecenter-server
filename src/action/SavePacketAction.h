@@ -37,12 +37,12 @@ namespace action
         bool execute(Packet * packet)
         {
             string query = "INSERT INTO `packet` ";
-            query += "(`date`, `source_type`, `source_identifier`, `command`, `target`, `last`, `data_long1`, `data_long2`, `data_long3`, `data_long4`, `data_uchar1`, `data_uchar2`, `data_uchar3`, `data_char1`, `data_char2`, `data_char3`) ";
+            query += "(`date`, `source_type`, `source_identifier`, `command`, `target`, `data_long1`, `data_long2`, `data_long3`, `data_long4`, `data_uchar1`, `data_uchar2`, `data_uchar3`, `data_char1`, `data_char2`, `data_char3`) ";
             query += "VALUES('" +
                      to_string(packet->getDate()) + "', '" +
                      to_string(packet->getSourceType()) + "', '" + to_string(packet->getSourceIdentifier()) + "', '" +
                      to_string(packet->getCommand()) + "', '" +
-                     to_string(packet->getTarget()) + "', '" + (packet->isLast() ? "1" : "0") + "', '" +
+                     to_string(packet->getTarget()) + "', '" +
                      to_string(packet->getDataLong1()) + "', '" + to_string(packet->getDataLong2()) + "', '" +
                      to_string(packet->getDataLong3()) + "', '" + to_string(packet->getDataLong4()) + "', '" +
                      to_string(packet->getDataUChar1()) + "', '" + to_string(packet->getDataUChar2()) + "', '" +

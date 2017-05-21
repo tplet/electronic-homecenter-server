@@ -80,6 +80,31 @@ namespace service
             }
 
             /**
+             * Delete all packet in queue
+             */
+            bool deleteById(vector<unsigned long long> ids)
+            {
+                // Query
+                string query = "DELETE FROM `packet_queue`";
+
+                if (ids.size() > 0) {
+                    query += " WHERE `id` IN(";
+                    unsigned int i = 0;
+                    for (auto & id : ids) {
+                        if (i > 0) {
+                            query += ", ";
+                        }
+                        query += "'" + to_string(id) + "'";
+                        i++;
+                    }
+                    query += ")";
+                }
+
+                // Execute
+                return this->serviceDatabaseManager->execute(query);
+            }
+
+            /**
              * Fetch packet queue list by target
              *
              * Don't forget to delete sensor object if no used anymore (if not null)

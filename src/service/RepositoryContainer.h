@@ -6,9 +6,11 @@
 #define HOMECENTER_SERVER_SERVICE_REPOSITORYCONTAINER_H
 
 #include <service/repository/SensorRepository.h>
+#include <service/repository/PacketQueueRepository.h>
 #include <service/DatabaseManager.h>
 
 using service::repository::SensorRepository;
+using service::repository::PacketQueueRepository;
 using service::DatabaseManager;
 
 namespace service
@@ -56,6 +58,18 @@ namespace service
             return this->repositorySensor;
         }
 
+        /**
+         * Get repository packet queue
+         */
+        PacketQueueRepository * getRepositoryPacketQueue()
+        {
+            if (this->repositoryPacketQueue == NULL) {
+                this->repositoryPacketQueue = new PacketQueueRepository(this->serviceDatabaseManager);
+            }
+
+            return this->repositoryPacketQueue;
+        }
+
     protected:
 
         /**
@@ -67,6 +81,11 @@ namespace service
          * Sensor repository
          */
         SensorRepository * repositorySensor = NULL;
+
+        /**
+         * Packet queue repository
+         */
+        PacketQueueRepository * repositoryPacketQueue = NULL;
     };
 }
 
