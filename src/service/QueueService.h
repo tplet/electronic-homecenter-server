@@ -57,20 +57,22 @@ namespace service
             // Get list of packet to send
             vector<PacketQueue *> list = packetQueueRepository->fetchAll();
 
-            // For each packet queue found
-            vector<unsigned long long> ids;
-            for (auto & packetQueue : list) {
-                // Add to transmitter
-                this->getTransmitter()->add(this->getPacketConverter()->convert(packetQueue));
+            if (list.size() > 0) {
+                // For each packet queue found
+                vector<unsigned long long> ids;
+                for (auto &packetQueue : list) {
+                    // Add to transmitter
+                    this->getTransmitter()->add(this->getPacketConverter()->convert(packetQueue));
 
-                ids.push_back(packetQueue->getId());
+                    ids.push_back(packetQueue->getId());
 
-                // Free memory
-                delete packetQueue;
+                    // Free memory
+                    delete packetQueue;
+                }
+
+                // Remove packet queue sended
+                packetQueueRepository->deleteById(ids);
             }
-
-            // Remove packet queue sended
-            packetQueueRepository->deleteById(ids);
         }
 
         /**
