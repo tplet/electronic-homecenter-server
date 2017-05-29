@@ -7,10 +7,12 @@
 
 #include <service/repository/SensorRepository.h>
 #include <service/repository/PacketQueueRepository.h>
+#include <service/repository/PacketForwardRepository.h>
 #include <service/DatabaseManager.h>
 
 using service::repository::SensorRepository;
 using service::repository::PacketQueueRepository;
+using service::repository::PacketForwardRepository;
 using service::DatabaseManager;
 
 namespace service
@@ -70,6 +72,18 @@ namespace service
             return this->repositoryPacketQueue;
         }
 
+        /**
+         * Get repository packet forward
+         */
+        PacketForwardRepository * getRepositoryPacketForward()
+        {
+            if (this->repositoryPacketForward == NULL) {
+                this->repositoryPacketForward = new PacketForwardRepository(this->serviceDatabaseManager);
+            }
+
+            return this->repositoryPacketForward;
+        }
+
     protected:
 
         /**
@@ -86,6 +100,11 @@ namespace service
          * Packet queue repository
          */
         PacketQueueRepository * repositoryPacketQueue = NULL;
+
+        /**
+         * Packet forward repository
+         */
+        PacketForwardRepository * repositoryPacketForward = NULL;
     };
 }
 

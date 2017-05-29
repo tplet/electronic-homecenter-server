@@ -105,6 +105,33 @@ namespace service
             }
 
             /**
+             * Fetch packet forward list by source and command
+             *
+             * Don't forget to delete result object if no used anymore (if not null)
+             */
+            vector<PacketForward *> fetchBySourceAndCommand(unsigned long long sensorSource, unsigned char command)
+            {
+                vector<PacketForward *> list;
+
+                string query = "SELECT " + this->getSelectPart() + " FROM `packet_forward` WHERE ";
+                query += "`id_sensor_source` = " + to_string(sensorSource) + " ";
+                query += "AND `commandFrom` = '" + to_string(command) + "'";
+                vector<MYSQL_ROW> rows = this->serviceDatabaseManager->select(query);
+
+                // Hydrate list
+                PacketForward * packetForward;
+                for (auto & row : rows) {
+
+                    packetForward = new PacketForward();
+                    this->hydrate(packetForward, row);
+
+                    list.push_back(packetForward);
+                }
+
+                return list;
+            }
+
+            /**
              * Save packet forward
              */
             void save(PacketForward * packetForward)

@@ -101,9 +101,43 @@ namespace service
                                                                  packet->getSourceIdentifier());
                     }
 
+                    //
+                    // Forward feature
+                    //
+                    bool savePacket = true;
+                    Packet * packetClone = NULL;
+                    string sGhost = "ghost";
+                    vector<PacketForward *> forwards = this->serviceRepositoryContainer
+                        ->getRepositoryPacketForward()
+                        ->fetchBySourceAndCommand(sensor->getId(), packet->getCommand());
+                    if (forwards.size() > 0) {
+                        for (auto &packetForward : forwards) {
+
+                            // If ghost type, packet will not be copied
+                            if (sGhost.compare(packetForward->getType()) == 0) {
+                                savePacket = false;
+                            }
+
+                            // Forward to destination
+                            packetClone = new Packet(packet);
+                            packetClone->setTarget(this->serviceRepositoryContainer->getRepositorySensor()->find(packetForward->getSensorTarget())->getUid());
+                            packetClone->setCommand(packetForward->getCommandTo());
+                            this->transmitter->add(packetClone);
+
+                            // End
+                            delete packetForward;
+
+                        }
+
+                        forwards.clear();
+                    }
+
+
                     // Save packet to database (for archive)
-                    SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
-                    action.execute(packet);
+                    if (savePacket) {
+                        SavePacketAction action(this->serviceRepositoryContainer->getServiceDatabaseManager());
+                        action.execute(packet);
+                    }
 
                     //
                     // Analyse command
