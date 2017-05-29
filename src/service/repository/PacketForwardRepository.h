@@ -162,7 +162,7 @@ namespace service
                         query += "`commandTo` = '" + to_string(packetForward->getCommandTo()) + "', ";
                         query += "`id_sensor_source` = '" + to_string(packetForward->getSensorSource()) + "', ";
                         query += "`id_sensor_target` = '" + to_string(packetForward->getSensorTarget()) + "' ";
-                        query += "WHERE `id` = " + packetForward->getId();
+                        query += "WHERE `id` = " + to_string(packetForward->getId());
 
                         this->serviceDatabaseManager->update(query);
                     }
