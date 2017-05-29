@@ -174,7 +174,8 @@ namespace service
                         query += "`data_uchar3` = '" + to_string(packetQueue->getDataUChar3()) + "', ";
                         query += "`data_char1` = '" + to_string(packetQueue->getDataChar1()) + "', ";
                         query += "`data_char2` = '" + to_string(packetQueue->getDataChar2()) + "', ";
-                        query += "`data_char3` = '" + to_string(packetQueue->getDataChar3()) + "'";
+                        query += "`data_char3` = '" + to_string(packetQueue->getDataChar3()) + "' ";
+                        query += "WHERE `id` = " + packetQueue->getId();
 
                         this->serviceDatabaseManager->update(query);
                     }
